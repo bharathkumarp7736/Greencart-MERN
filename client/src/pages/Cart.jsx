@@ -51,6 +51,7 @@ const Cart = () => {
                 if(data.success){
                     toast.success(data.message)
                     setCartItems({})
+                    setCartArray([])
                     navigate('/my-orders')
                 }
                 else{
