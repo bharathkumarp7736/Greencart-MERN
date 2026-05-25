@@ -6,7 +6,7 @@ import toast from "react-hot-toast";
 
 const Navbar = () => {
   const [open, setOpen] = React.useState(false);
-  const{user,setUser,setShowUserLogin,navigate,setSearchQuery,searchQuery,getCartCount,axios}=useAppContext();
+  const{user,setUser,setShowUserLogin,navigate,setSearchQuery,searchQuery,getCartCount,axios,setCartItems}=useAppContext();
 
   const logout=async()=>{
     try {
@@ -14,6 +14,7 @@ const Navbar = () => {
       if (data.success) {
         toast.success(data.message);
         setUser(null)
+        setCartItems({})
         navigate('/')
       }
       else{
@@ -53,7 +54,17 @@ const Navbar = () => {
          <img src={assets.search_icon} alt="search" className="w-4 h-4"/>
         </div>
 
-        <div onClick={()=>navigate('/cart')} className="relative cursor-pointer">
+        <div 
+        onClick={() => {
+  if (!user) {
+    toast.error("Please login first")
+    setShowUserLogin(true)
+    return
+  }
+
+  navigate('/cart')
+}}
+        className="relative cursor-pointer">
           <img src={assets.cart_icon} alt="cart" className="w-6 opacity-60" />
           <button className="absolute -top-2 -right-3 text-xs text-white bg-primary w-4.5 h-4.5 rounded-full">
             {getCartCount()}
