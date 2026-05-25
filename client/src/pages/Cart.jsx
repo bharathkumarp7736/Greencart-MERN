@@ -4,7 +4,7 @@ import { assets, dummyAddress } from '../assets/assets'
 import toast from 'react-hot-toast'
 
 const Cart = () => {
-    const{products,currency,cartItems,removeFromCart,getCartCount,updateCartItem,navigate,getCartAmount,axios,user,setCartItems} = useAppContext()
+    const{products,currency,cartItems,removeFromCart,getCartCount,updateCartItem,navigate,getCartAmount,axios,user,setCartItems,setShowUserLogin} = useAppContext()
     const [cartArray,setCartArray]=useState([])
     const [addresses,setAddresses]=useState([])
     const [showAddress, setShowAddress] = useState(false)
@@ -37,44 +37,56 @@ const Cart = () => {
         }
     }
 
-    const placeOrder= async()=>{
-        try {
-            if (!selectedAddress) {
-                return toast.error('Please select a delivery address')
-            } 
-            //place order with cod
-            if (paymentOption === 'COD') {
-                const {data} = await axios.post('/api/order/cod',{
-                    items:cartArray.map(item=>({product:item._id,quantity:item.quantity})),
-                    address:selectedAddress._id
-                })
-                if(data.success){
-                    toast.success(data.message)
-                    setCartItems({})
-                    setCartArray([])
-                    navigate('/my-orders')
-                }
-                else{
-                    toast.error(data.message)
-                }
-            }
-            else{
-                //place order with online payment 
-                 const {data} = await axios.post('/api/order/stripe',{
-                    items:cartArray.map(item=>({product:item._id,quantity:item.quantity})),
-                    address:selectedAddress._id
-                })
-                if(data.success){
-                    window.location.replace(data.url)
-                }
-                else{
-                    toast.error(data.message)
-                }
-            }
-        } catch (error) {
-            toast.error(error.message)
-        }
-        }
+    const placeOrder = async () => {
+  try {
+    if (!user) {
+      toast.error("Please login first");
+      setShowUserLogin(true);
+      return;
+    }
+
+    if (!selectedAddress) {
+      return toast.error("Please select a delivery address");
+    }
+
+    // place order with COD
+    if (paymentOption === "COD") {
+      const { data } = await axios.post("/api/order/cod", {
+        items: cartArray.map((item) => ({
+          product: item._id,
+          quantity: item.quantity,
+        })),
+        address: selectedAddress._id,
+      });
+
+      if (data.success) {
+        toast.success(data.message);
+        setCartItems({});
+        setCartArray([]);
+        navigate("/my-orders");
+      } else {
+        toast.error(data.message);
+      }
+    } else {
+      // place order with online payment
+      const { data } = await axios.post("/api/order/stripe", {
+        items: cartArray.map((item) => ({
+          product: item._id,
+          quantity: item.quantity,
+        })),
+        address: selectedAddress._id,
+      });
+
+      if (data.success) {
+        window.location.replace(data.url);
+      } else {
+        toast.error(data.message);
+      }
+    }
+  } catch (error) {
+    toast.error(error.message);
+  }
+};
     
 
 
